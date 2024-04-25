@@ -1,0 +1,58 @@
+body {
+    font-family: "Roboto", sans-serif;
+    background: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header{
+    font-size: 30px;
+    padding: 2%;
+    }
+
+h5{
+    font-size: 30px;
+    padding-left: 9%;
+}
+
+.homework-container {
+    width: 80%;
+    margin: 2% auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.homework-item {
+    border: 2px solid black;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.homework-item h3 {
+    color: #82C0CC;
+}
+
+.homework-item p {
+    padding: 5px;
+    line-height: 1.5;
+}
+
+button{
+    margin-left: 73%;
+    background: black;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 1px solid black;
+    padding: 15px 30px;
+    border-radius: 25px;
+    transition: .3s ease;
+}
+
+button:hover{
+    border-radius: 4px;
+    }
+

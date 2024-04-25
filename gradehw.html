@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Homeworks</title>
+    <link rel="stylesheet" href="viewhw.css">
+</head>
+<body>
+    <header>
+        Homework Buddy
+    </header>
+    <h5>View homeworks</h5>
+    <section id="homeworkDisplay" class="homework-container">
+        <!-- Homeworks will be displayed here -->
+    </section>
+    
+<script>
+window.onload = function() {
+    var homeworks = JSON.parse(localStorage.getItem('homeworks'));
+    var display = document.getElementById('homeworkDisplay');
+    
+    if (homeworks && homeworks.length > 0) {
+        homeworks.forEach(function(homework, index) {
+            display.innerHTML += '<div class="homework-item">' +
+                                 '<h3>' + homework.title + '</h3>' +
+                                 '<p>' + homework.desc + '</p>' +
+                                 '<p>Due: ' + homework.date + ' ' + homework.time + '</p>' +
+                                 '<button onclick="triggerCreate(' + index + ')">Create Homework</button>' +
+                                 '<button onclick="triggerUpload(' + index + ')">Upload Homework</button>' +
+                                 '<input type="file" id="fileUpload' + index + '" style="display:none;" onchange="fileUploaded(' + index + ')">' +
+                                 '<div id="uploadResponse' + index + '" class="upload-response"></div>' +
+                                 '</div>';
+        });
+    } else {
+        display.innerHTML = '<p>No homeworks have been published yet.</p>';
+    }
+};
+
+window.onload = function() {
+    var uploadedHomeworks = JSON.parse(localStorage.getItem('uploadedHomeworks')) || [];
+    var display = document.getElementById('gradeHomeworkDisplay'); // Assume this is your container for displaying homeworks to grade
+
+    if (uploadedHomeworks.length > 0) {
+        uploadedHomeworks.forEach(function(submission) {
+            display.innerHTML += '<div class="homework-item">' +
+                                 '<h3>' + submission.title + '</h3>' +
+                                 '<p>' + submission.description + '</p>' +
+                                 '<p>Due: ' + submission.dueDate + '</p>' +
+                                 '<p>Submitted File: ' + submission.fileName + '</p>' +
+                                 '<button onclick="gradeThisHomework()">Grade This Homework</button>' +
+                                 '</div>';
+        });
+    } else {
+        display.innerHTML = '<p>No submissions to grade.</p>';
+    }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Homeworks</title>
+    <link rel="stylesheet" href="viewhw.css">
+</head>
+<body>
+    <header>
+        Homework Buddy
+    </header>
+    <h5>View homeworks</h5>
+    <section id="homeworkDisplay" class="homework-container">
+        <!-- Homeworks will be displayed here -->
+    </section>
+
+    <!-- Popup for file upload -->
+    <div id="uploadPopup" style="display:none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: white; border: 1px solid #ccc; padding: 20px;">
+        <h3>Upload Your Homework</h3>
+        <input type="file" id="fileChooser" accept=".txt">
+        <button onclick="submitHomework()">Submit</button>
+        <p id="submissionStatus"></p>
+    </div>
+    
+    <script>
+    window.onload = function() {
+        var homeworks = JSON.parse(localStorage.getItem('homeworks'));
+        var display = document.getElementById('homeworkDisplay');
+        
+        if (homeworks && homeworks.length > 0) {
+            homeworks.forEach(function(homework, index) {
+                display.innerHTML += '<div class="homework-item">' +
+                                     '<h3>' + homework.title + '</h3>' +
+                                     '<p>' + homework.desc + '</p>' +
+                                     '<p>Due: ' + homework.date + ' ' + homework.time + '</p>' +
+                                     '<button onclick="triggerUpload(' + index + ')">Upload Homework</button>' +
+                                     '<div id="gradeResponse' + index + '" class="grade-response"></div>' +
+                                     '</div>';
+            });
+        } else {
+            display.innerHTML = '<p>No homeworks have been published yet.</p>';
+        }
+    };
+
+    function triggerUpload(index) {
+        document.getElementById('uploadPopup').style.display = 'block';
+        document.getElementById('fileChooser').dataset.index = index;
+    }
+
+    function submitHomework() {
+        var index = document.getElementById('fileChooser').dataset.index;
+        var fileInput = document.getElementById('fileChooser');
+        var responseDiv = document.getElementById('gradeResponse' + index);
+        if (fileInput.files.length > 0) {
+            var file = fileInput.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var contents = e.target.result;
+                var expectedText = "modulus"; // Change this to your required text
+                var grade, comments;
+
+                if (contents.includes(expectedText)) {
+                    grade = 'A';
+                    comments = 'Excellent work! You have included all necessary information.';
+                } else {
+                    grade = 'C';
+                    comments = 'Your submission is missing key information. Please review the homework guidelines.';
+                }
+
+                document.getElementById('submissionStatus').innerHTML = 'Submission Successful!';
+                responseDiv.innerHTML = 'Grade: ' + grade + '<br>Comments: ' + comments;
+                setTimeout(function() { document.getElementById('uploadPopup').style.display = 'none'; }, 3000);
+            };
+            reader.readAsText(file);
+        } else {
+            document.getElementById('submissionStatus').innerHTML = 'No file selected. Please choose a file to submit.';
+        }
+    }
+
+
+    
+    </script>
+</body>
+</html>

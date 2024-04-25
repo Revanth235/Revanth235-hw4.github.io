@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title>Create a homework</title>
+        <link rel="stylesheet" href="createhw.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>Homework Buddy</header>
+        <div class="content content-1">
+            <h2>
+               Create and publish a new homework
+            </h2>
+            <form id="homeworkForm">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+            
+                <label for="desc">Description:</label>
+                <textarea id="desc" name="desc" required></textarea>
+            
+                <label for="date">Deadline Date:</label>
+                <input type="date" id="date" name="date" required>
+            
+                <label for="time">Deadline Time:</label>
+                <input type="time" id="time" name="time" required>
+
+                <label for="expectedText">Expected Text for Grading:</label>
+                <input type="text" id="expectedText" name="expectedText" required>
+            
+                <button type="submit">Create Homework</button>
+            </form>
+         </div>
+
+         <script>
+            document.getElementById('homeworkForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+            
+                var newHomework = {
+                    title: document.getElementById('title').value,
+                    desc: document.getElementById('desc').value,
+                    date: document.getElementById('date').value,
+                    time: document.getElementById('time').value
+                };
+            
+                // Retrieve existing homeworks or initialize new array if none exist
+                var existingHomeworks = JSON.parse(localStorage.getItem('homeworks')) || [];
+            
+                // Add the new homework to the array
+                existingHomeworks.push(newHomework);
+            
+                // Save the updated array back to local storage
+                localStorage.setItem('homeworks', JSON.stringify(existingHomeworks));
+                alert('Homework added!');
+            });
+
+            
+
+            </script>
+
+    </body>
+</html>

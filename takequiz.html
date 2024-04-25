@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Take Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .quiz-list { margin-bottom: 20px; }
+        .question-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+        button {
+            margin-top: 20px;
+        }
+        .correct { background-color: #c8e6c9; } 
+        .incorrect { background-color: #ffcdd2; } 
+
+        button{
+            margin: 40px 0;
+            background: black;
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 1px solid black;
+            padding: 15px 30px;
+            border-radius: 25px;
+            transition: .3s ease;
+        }
+
+        button:hover{
+            border-radius: 4px;
+        }
+
+        .quiz-container{
+            border: 2px solid black;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Quizzes</h1>
+    <div id="quiz-list" class="quiz-list"></div>
+    <div id="quiz-container">
+        <form id="quiz-form" style="display: none;"></form>
+        <button id="submit-quiz" onclick="submitQuiz()" style="display:none;">Submit Quiz</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let currentQuizIndex = -1;
+        const completedQuizzes = new Set(); // Tracks the indexes of quizzes that have been completed
+        const quizResponses = {}; // Store responses for each quiz
+
+        function loadQuizzes() {
+            const allQuizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
+            const quizListContainer = document.getElementById('quiz-list');
+
+            if (!allQuizzes.length) {
+                quizListContainer.innerHTML = 'No quizzes are currently available.';
+                return;
+            }
+
+            allQuizzes.forEach((quiz, index) => {
+                const quizButton = document.createElement('button');
+                quizButton.textContent = `Take Quiz ${index + 1}`;
+                quizButton.id = `quiz-button-${index}`;
+                quizButton.onclick = () => loadQuiz(quiz, index);
+                quizListContainer.appendChild(quizButton);
+            });
+        }
+
+        function loadQuiz(quiz, index) {
+            const quizForm = document.getElementById('quiz-form');
+            quizForm.innerHTML = ''; // Clear previous quiz content
+            const resultDisplay = document.getElementById('result');
+            resultDisplay.textContent = ''; // Clear previous results
+            quizForm.style.display = 'block';
+
+            if (completedQuizzes.has(index)) {
+                document.getElementById('submit-quiz').style.display = 'none';
+                resultDisplay.textContent = quizResponses[index]?.scoreText || '';
+            } else {
+                document.getElementById('submit-quiz').style.display = 'block';
+            }
+
+            quiz.forEach((question, qIndex) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.className = 'question-container';
+                questionContainer.innerHTML = `<h3>${question.question}</h3>`;
+
+                Object.keys(question.options).forEach(optionKey => {
+                    const option = question.options[optionKey];
+                    const optionInput = document.createElement('input');
+                    optionInput.type = 'radio';
+                    optionInput.name = `question-${qIndex}`;
+                    optionInput.value = optionKey;
+                    optionInput.id = `option-${optionKey}-${qIndex}`;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = `option-${optionKey}-${qIndex}`;
+                    label.textContent = `${optionKey}: ${option}`;
+
+                    const lineBreak = document.createElement('br');
+
+                    if (completedQuizzes.has(index) && quizResponses[index]?.responses[qIndex] === optionKey) {
+                        optionInput.checked = true;
+                        optionInput.disabled = true;
+                        questionContainer.classList.add(
+                            optionKey === question.correctAnswer ? 'correct' : 'incorrect'
+                        );
+                    }
+
+                    questionContainer.appendChild(optionInput);
+                    questionContainer.appendChild(label);
+                    questionContainer.appendChild(lineBreak);
+                });
+                quizForm.appendChild(questionContainer);
+            });
+
+            currentQuizIndex = index; // Update current quiz index
+        }
+
+        function submitQuiz() {
+            const quizForm = document.getElementById('quiz-form');
+            const inputs = quizForm.getElementsByTagName('input');
+            let score = 0;
+            let totalQuestions = 0;
+            const responses = {};
+
+            Array.from(inputs).forEach(input => {
+                if (input.type === 'radio' && input.checked) {
+                    const questionIndex = parseInt(input.name.split('-')[1]);
+                    const quizzes = JSON.parse(localStorage.getItem('quizzes'));
+                    const question = quizzes[currentQuizIndex][questionIndex];
+                    responses[questionIndex] = input.value;
+
+                    if (input.value === question.correctAnswer) {
+                        input.parentNode.classList.add('correct');
+                        score++;
+                    } else {
+                        input.parentNode.classList.add('incorrect');
+                    }
+                    totalQuestions++;
+                }
+            });
+
+            const resultText = `You scored ${score} out of ${totalQuestions} correct.`;
+            const resultDisplay = document.getElementById('result');
+            resultDisplay.textContent = resultText;
+            document.getElementById('submit-quiz').style.display = 'none'; // Disable the submit button after completion
+            completedQuizzes.add(currentQuizIndex); // Add this quiz to the set of completed quizzes
+            quizResponses[currentQuizIndex] = { scoreText: resultText, responses: responses }; // Store the score text and responses
+        }
+
+        window.onload = loadQuizzes;
+    </script>
+</body>
+</html>

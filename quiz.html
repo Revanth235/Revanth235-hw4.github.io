@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        header { background-color: #f8f8f8; padding: 10px 20px; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .buttons, .published-quizzes { padding: 10px 20px; background-color: white; }
+        .content { padding: 20px; }
+        .question-container, .quiz-preview {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid black;
+            border-radius: 4px;
+            
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        button{
+            margin: 40px 0;
+            background: black;
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            border: 1px solid black;
+            padding: 15px 30px;
+            border-radius: 25px;
+            transition: .3s ease;
+        }
+
+        button:hover{
+border-radius: 4px;
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Create a Quiz</h1>
+    </header>
+    <div class="buttons">
+        <button onclick="addQuestion()">Add Question</button>
+        <button onclick="removeLastQuestion()">Remove Last Question</button>
+        <button onclick="publishQuiz()">Publish Quiz</button>
+    </div>
+    <div class="content">
+        <div id="question-list"></div>
+    </div>
+    <div class="published-quizzes">
+        <h2>Published Quizzes</h2>
+        <div id="quiz-preview"></div>
+    </div>
+
+    <script>
+        let questions = [];
+        let quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
+
+        function addQuestion() {
+            const index = questions.length;
+            const questionContainer = document.createElement('div');
+            questionContainer.className = 'question-container';
+            questionContainer.id = `question-${index}`;
+
+            const questionText = document.createElement('input');
+            questionText.type = 'text';
+            questionText.placeholder = 'Enter your question here';
+            questionText.id = `question-text-${index}`;
+            questionContainer.appendChild(questionText);
+
+            const optionsContainer = document.createElement('div');
+            ['A', 'B', 'C', 'D'].forEach(option => {
+                const optionInput = document.createElement('input');
+                optionInput.type = 'text';
+                optionInput.id = `option-${option}-${index}`;
+                optionInput.placeholder = `Option ${option}`;
+
+                const label = document.createElement('label');
+                label.textContent = `Option ${option}: `;
+                label.appendChild(optionInput);
+                optionsContainer.appendChild(label);
+            });
+            questionContainer.appendChild(optionsContainer);
+
+            const correctAnswerSelect = document.createElement('select');
+            correctAnswerSelect.id = `correct-answer-${index}`;
+            ['A', 'B', 'C', 'D'].forEach(letter => {
+                const option = document.createElement('option');
+                option.value = letter;
+                option.textContent = letter;
+                correctAnswerSelect.appendChild(option);
+            });
+            const label = document.createElement('label');
+            label.textContent = 'Correct Answer: ';
+            label.appendChild(correctAnswerSelect);
+            questionContainer.appendChild(label);
+
+            document.getElementById('question-list').appendChild(questionContainer);
+            questions.push(questionContainer);
+        }
+
+        function removeLastQuestion() {
+            if (questions.length > 0) {
+                const lastQuestion = questions.pop();
+                lastQuestion.parentNode.removeChild(lastQuestion);
+            }
+        }
+
+        function publishQuiz() {
+            const quiz = questions.map((questionContainer, index) => {
+                return {
+                    question: document.getElementById(`question-text-${index}`).value,
+                    options: {
+                        A: document.getElementById(`option-A-${index}`).value,
+                        B: document.getElementById(`option-B-${index}`).value,
+                        C: document.getElementById(`option-C-${index}`).value,
+                        D: document.getElementById(`option-D-${index}`).value,
+                    },
+                    correctAnswer: document.getElementById(`correct-answer-${index}`).value
+                };
+            });
+
+            quizzes.push(quiz);
+            localStorage.setItem('quizzes', JSON.stringify(quizzes));
+            alert('Quiz published successfully!');
+            questions = [];
+            document.getElementById('question-list').innerHTML = '';
+            showPublishedQuizzes();
+        }
+
+        function showPublishedQuizzes() {
+            const quizzes = JSON.parse(localStorage.getItem('quizzes') || '[]');
+            const previewContainer = document.getElementById('quiz-preview');
+            previewContainer.innerHTML = ''; // Clear existing previews
+
+            quizzes.forEach((quiz, index) => {
+                const quizDiv = document.createElement('div');
+                quizDiv.className = 'quiz-preview';
+                quizDiv.innerHTML = `<h3>Quiz ${index + 1}</h3>`;
+                quiz.forEach(question => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.innerHTML = `<strong>Q: ${question.question}</strong><br/>` +
+                        Object.keys(question.options).map(option => `Option ${option}: ${question.options[option]}`).join('<br/>') +
+                        `<br/>Correct Answer: ${question.correctAnswer}<br/>`;
+                    quizDiv.appendChild(questionDiv);
+                });
+                previewContainer.appendChild(quizDiv);
+            });
+        }
+
+        window.onload = showPublishedQuizzes;
+    </script>
+</body>
+</html>
+
+
+
